@@ -4,6 +4,7 @@
 
 import java.util.List;
 import java.util.ArrayList;
+import processing.javafx.*;
 
 //
 // Globale Variablen
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 
 // Konstanten
 public static final double G = 6.673e-11d; // Gravitations-Konstante G
-public static final double SPEED = 100000d; // Simulationsgeschwindigkeit, 1 = 1 Sekunde pro Sekunde
+public static final double SPEED = 1e5d;   // Simulationsgeschwindigkeit, 1 = 1 Sekunde pro Sekunde (sehr langsam)
 
 public static double DELTA;    // gibt die Zeit seit dem letzten Frame in Millisekunden an
 public static long DELTA_PREV; // cache-Variable für die Berechnung der Delta-Zeit
@@ -26,7 +27,7 @@ public static List<Body> BODIES = new ArrayList(); // Liste für alle Körper, d
 // setup-Funktion
 void setup() 
 {
-    size(1080, 720);
+    size(1080, 720, FX2D);
 
     BODIES.add(
         new Body(1_000_000d)
@@ -54,11 +55,14 @@ void setup()
 // draw-Funktion
 void draw() 
 {
-    background(0);                    // Schwarzer Hintergrund
+    background(0);                        // Schwarzer Hintergrund
+    fill(frameRate > 30 ? 255 : #ff0000); // Setze die Farbe für die FPS-Anzeige: weiß > 30, rot <= 30, da bei niedrigen FPS-Zahlen die Simulation nich richtig funktionieren könnte
+    text(frameRate, 0, 10);               // Zeige die FPS-Zahl an
+
     translate(width / 2, height / 2); // Setze den Ursprung des Koordinatensystems auf die Mitte des Fensters
 
     DELTA = get_delta_time();       // berechne die Zeit seit dem letzten Frame
-    println(DELTA, TAB, frameRate); // gebe die FPS, sowie Delta-Zeit im Terminal aus
+    //println(DELTA, TAB, frameRate); // gebe die FPS, sowie Delta-Zeit im Terminal aus
 
     if(!FIRST_FRAME) // Wenn der erste Frame berechnet ist, beginne die Simulation
     {

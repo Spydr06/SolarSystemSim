@@ -5,11 +5,12 @@ class Body
     // Variablen
     //
 
-    private double mass; // die Masse des Körpers
     private PVector pos; // die Position des Körpers
     private PVector vel; // die Geschwindigkeit des Körpers
     private PVector acc; // die Beschleunigung des Körpers
-    private String name = ""; // Name des Körpers
+    private double mass; // die Masse des Körpers
+
+    private String name = "";    // Name des Körpers
     private color col = #ffffff; // die Farbe, mit der der Körper gezeichnet wird
 
     //
@@ -52,19 +53,19 @@ class Body
 
     public void apply_force(Body b)
     {
+        // Berechne die Gewichtskraft g für die aktuelle Situation
         double g = (
             b.get_mass() / 
             pow(this.pos.dist(b.get_pos()), 2)
         ) * G;
 
+        // Berechne die Kraft, die auf den Körper wirkt
         double F = this.mass * g;
 
-        PVector AB = b.get_pos().sub(this.pos);
-        PVector F_AB = AB.mult((float) F / sqrt(pow(AB.x, 2) + pow(AB.y, 2)));
+        PVector AB = b.get_pos().sub(this.pos); // Ein Vektor von diesem Körper zu b
+        PVector F_AB = AB.mult((float) F / sqrt(pow(AB.x, 2) + pow(AB.y, 2))); // Wende die Kraft F auf diesen Körper in Richtung des Körpers b an
 
-        this.acc.add(F_AB.div((float) this.mass));
-
-        println("applying force for", this.name, TAB, "accel", this.acc, TAB, "F", F);
+        this.acc.add(F_AB.div((float) this.mass)); // Beschleunige den Körper
     }
 
     //
