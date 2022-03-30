@@ -33,6 +33,8 @@ class Body
     {
         this.vel.add(this.acc.get().mult((float) delta)); // Die Beschleunigung multipliziert mit der Zeit ergibt die Geschwindigkeit
         this.pos.add(this.vel.get().mult((float) delta)); // Die Geschwindigkeit multipliziert mit der Zeit ergibt die neue Position
+
+        this.acc.set(0, 0, 0); // setze die Beschleunigung zurück
     }
 
     // Funktion zum Zeichnen eines Körpers
@@ -60,7 +62,7 @@ class Body
         PVector AB = b.get_pos().sub(this.pos);
         PVector F_AB = AB.mult((float) F / sqrt(pow(AB.x, 2) + pow(AB.y, 2)));
 
-        this.acc.set(F_AB.div((float) this.mass));
+        this.acc.add(F_AB.div((float) this.mass));
 
         println("applying force for", this.name, TAB, "accel", this.acc, TAB, "F", F);
     }

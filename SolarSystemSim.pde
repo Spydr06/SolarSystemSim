@@ -30,17 +30,24 @@ void setup()
 
     BODIES.add(
         new Body(1_000_000d)
-       // .set_velocity(10, 0)
         .set_color(#ffe000)
         .set_name("Sonne")
     );
 
     BODIES.add(
-        new Body(1d)
+        new Body(10_000d)
         .set_position(-200, 0)
         .set_velocity(0, 0.0005)
         .set_color(#00a0ff)
         .set_name("Erde")
+    );
+
+    BODIES.add(
+        new Body(1d)
+        .set_position(-190, 0)
+        .set_velocity(0, 0.0007)
+        .set_color(#505050)
+        .set_name("Mond")
     );
 }
 
