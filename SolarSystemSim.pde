@@ -110,6 +110,10 @@ void draw()
     });
 }
 
+//
+// Funktionen für das Rendering
+//
+
 // Projeziert einen 3D-Punkt (als Vektor) auf eine 2D-Fläche
 // mithilfe der Rotationsmatrix
 PVector project(PVector v)
@@ -147,6 +151,14 @@ Matrix get_rotation_matrix(PVector r)
     // Die drei Matrizen Rx,Ry & Rz können durch Multiplikation zusammengefasst werden
 }
 
+// Funktion um den Renderer auf Startwerte zu setzen
+void reset_renderer()
+{
+    ROTATION = new PVector();
+    TRANSLATION = new PVector();
+    SCALE = 1;
+}
+
 //
 // Benutzereingabe
 //
@@ -181,6 +193,8 @@ void mouseDragged()
 void keyPressed() {
     if(key == CODED && keyCode == CONTROL) // Wenn die Taste "Steuerung" ist,
         CTRL = true;                       // setze CTRL auf true
+    if(keyCode == 'R')    // Wenn 'R' gedrückt ist,
+        reset_renderer(); // setze die Rotation, Translation und Skalierung zurück
 }
 
 // wird ausgeführt, wenn eine Taste losgelassen wird
