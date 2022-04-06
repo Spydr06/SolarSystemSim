@@ -8,21 +8,18 @@ class Matrix
     //
 
     // Matrix-Werte
-    public float[] m = new float[9];
     // 3x3 Layout:
     // m[0], m[1], m[2],
     // m[3], m[4], m[5],
     // m[6], m[7], m[8]
+    public float[] m = new float[9];
 
     //
     // Basisfunktionen
     //
 
     // Konstruktor
-    public Matrix()
-    {
-
-    }
+    public Matrix() {}
 
     public Matrix(float[] m)
     {
@@ -42,9 +39,10 @@ class Matrix
         );
     }
 
-    // Matrixmultiplikation: (3x3 * 3x3)
+    // Matrixmultiplikation (3x3 * 3x3):
     // Bei der Multiplikation zweier matrixen wird zu jeder Reihe der ersten Matrix
     // jede Spalte der zweiten Matrix multipliziert, und dann zusammenaddiert.
+    // Referenz: https://www.fhybea.com/en/multiplication-matrix-3x3.html
     public Matrix mult(Matrix b)
     {
         this.m = new float[] {
@@ -68,6 +66,7 @@ class Matrix
     // Setter geben die Instanz der Klasse zurück, damit Setter-Funktionen aneinander gereiht werden können
     //
 
+    // Setzt die Werte der Matrix auf ein neues Array
     public Matrix set_indices(float[] m)
     {
         this.m = m;
@@ -78,6 +77,7 @@ class Matrix
     // Getter
     //
 
+    // Kopiert eine Matrix, sodass keine Referenz mehr besteht
     public Matrix copy()
     {
         float[] m = Arrays.copyOf(this.m, 9);

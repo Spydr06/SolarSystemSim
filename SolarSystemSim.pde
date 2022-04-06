@@ -87,16 +87,11 @@ void draw()
     BODIES.forEach((a) -> // Jeder Körper erfährt eine Kraft von jedem anderen Köper
         BODIES.forEach((b) -> {
             if(a.equals(b)) // ein Körper erfährt keine Kraft von sich selbst, deswegen:
-                 return;     // continue;
+                return;     // continue;
             a.apply_force(b);
         }
     ));
-
-    BODIES.forEach((body) -> { // Für jeden registrieten Körper:
-        body.update(SPEED);    // Update und
-        body.render();         // zeichne ihn
-    });
-    
+      
     // Zeichne 3 linien vom Ursprung aus, um das Koordinatensystem zu verdeutlichen
     PVector a = project(new PVector(100, 0, 0)); // Berechne die 2D-Koordinaten
     PVector b = project(new PVector(0, 100, 0));
@@ -108,6 +103,11 @@ void draw()
     line(0, 0, b.x, b.y); // Y-Koordinate
     stroke(#0000ff);      // Blau für die
     line(0, 0, c.x, c.y); // Z-Koordinate
+
+    BODIES.forEach((body) -> { // Für jeden registrieten Körper:
+        body.update(SPEED);    // Update und
+        body.render();         // zeichne ihn
+    });
 }
 
 // Projeziert einen 3D-Punkt (als Vektor) auf eine 2D-Fläche
@@ -124,7 +124,8 @@ PVector project(PVector v)
 Matrix get_rotation_matrix(PVector r)
 {
     // Ressourcen für Rotation: https://www.imatest.com/support/docs/pre-5-2/geometric-calibration-deprecated/rotations-and-translations-in-3d/
-    return new Matrix(new float[] {
+    return new Matrix(
+        new float[] {
             1, 0, 0,                //         ┌ 1      0       0 ┐
             0, cos(r.x), -sin(r.x), // Rx(Θ) = │ 0 cos(Θ) -sin(Θ) │
             0, sin(r.x), cos(r.x)   //         └ 0 sin(Θ) cos(Θ)  ┘
