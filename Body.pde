@@ -32,8 +32,8 @@ class Body
     // Funktion zum Aktualisieren der Parameter eines Körpers
     public void update(double delta)
     {
-        this.vel.add(this.acc.get().mult((float) delta)); // Die Beschleunigung multipliziert mit der Zeit ergibt die Geschwindigkeit
-        this.pos.add(this.vel.get().mult((float) delta)); // Die Geschwindigkeit multipliziert mit der Zeit ergibt die neue Position
+        this.vel.add(this.acc.copy().mult((float) delta)); // Die Beschleunigung multipliziert mit der Zeit ergibt die Geschwindigkeit
+        this.pos.add(this.vel.copy().mult((float) delta)); // Die Geschwindigkeit multipliziert mit der Zeit ergibt die neue Position
 
         this.acc.set(0, 0, 0); // setze die Beschleunigung zurück
     }
@@ -45,10 +45,11 @@ class Body
         stroke(this.col);
         fill(this.col);
 
-        circle(this.pos.x, this.pos.y, 5); // Zeichne einen Kreis an den aktuellen Koordinaten
+        PVector draw_pos = project(this.pos);
+        circle(draw_pos.x, draw_pos.y, 5); // Zeichne einen Kreis an den aktuellen Koordinaten
         
         if(!this.name.equals("")) // Wenn ein Name gesetzt ist, zeichne auch diesen
-            text(this.name, this.pos.x + 10, this.pos.y + 10);
+            text(this.name, draw_pos.x + 10, draw_pos.y + 10);
     }
 
     public void apply_force(Body b)
@@ -63,7 +64,7 @@ class Body
         double F = this.mass * g;
 
         PVector AB = b.get_pos().sub(this.pos); // Ein Vektor von diesem Körper zu b
-        PVector F_AB = AB.mult((float) F / sqrt(pow(AB.x, 2) + pow(AB.y, 2))); // Wende die Kraft F auf diesen Körper in Richtung des Körpers b an
+        PVector F_AB = AB.mult((float) F / sqrt(pow(AB.x, 2) + pow(AB.y, 2) + pow(AB.z, 2))); // Wende die Kraft F auf diesen Körper in Richtung des Körpers b an
 
         this.acc.add(F_AB.div((float) this.mass)); // Beschleunige den Körper
     }
@@ -85,6 +86,12 @@ class Body
     public Body set_position(float x, float y)
     {
         this.pos.set(x, y);
+        return this;
+    }
+    
+    public Body set_position(float x, float y, float z)
+    {
+        this.pos.set(x, y, z);
         return this;
     }
 
@@ -115,6 +122,6 @@ class Body
     // Gibt die Position zurück
     public PVector get_pos()
     {
-        return this.pos.get();
+        return this.pos.copy();
     }
 }
