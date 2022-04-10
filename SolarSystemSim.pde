@@ -22,6 +22,9 @@ public static Matrix ROTATION_MATRIX;              // Rotationsmatrix
 public static PVector TRANSLATION = new PVector(); // Gibt die Verschiebung an
 public static float SCALE = 1;                     // Gibt die Skalierung an
 
+// Informationen
+public static String INFO_FMT = "fps: %d\nspeed: %d\nscale: %f\ntranslation: (%d|%d|%d)\nrotation: (%d°|%d°|%d°)";
+
 // Eingabe
 public static boolean CTRL = false; // Gibt an, ob "Steuerung" gedrückt ist
 
@@ -75,7 +78,13 @@ void draw()
 {
     background(0);                        // Schwarzer Hintergrund
     fill(255); // Setze die Farbe für die FPS-Anzeige: weiß > 30, rot <= 30, da bei niedrigen FPS-Zahlen die Simulation nich richtig funktionieren könnte
-    text((int) frameRate, 0, 10);               // Zeige die FPS-Zahl an
+    text(
+        String.format(
+            INFO_FMT, (int) frameRate, (int) (frameRate * SPEED), SCALE,
+            (int) TRANSLATION.x, (int) TRANSLATION.y, (int) TRANSLATION.z,
+            (int) degrees(ROTATION.x), (int) degrees(ROTATION.y), (int) degrees(ROTATION.z)
+        ),
+    10, 20);               // Zeige die FPS-Zahl an
 
     // Setze den Ursprung des Koordinatensystems auf die Mitte des Fensters
     // und verschiebe ihn um TRANSLATION
