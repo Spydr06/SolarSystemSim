@@ -41,15 +41,22 @@ class Body
     // Funktion zum Zeichnen eines Körpers
     public void render() 
     {
+        PVector draw_pos = project(this.pos);   
+        PVector xy = project(new PVector(this.pos.x, this.pos.y, 0));
+
+        // Zeichne die Höhenlinie (position auf x, y, 0)
+        stroke(50);
+        line(draw_pos.x, draw_pos.y, xy.x, xy.y);
+      
         // Setze die Farbe
         stroke(this.col);
         fill(this.col);
 
-        PVector draw_pos = project(this.pos);
         circle(draw_pos.x, draw_pos.y, 5); // Zeichne einen Kreis an den aktuellen Koordinaten
         
         if(!this.name.equals("")) // Wenn ein Name gesetzt ist, zeichne auch diesen
             text(this.name, draw_pos.x + 10, draw_pos.y + 10);
+
     }
 
     public void apply_force(Body b)

@@ -4,6 +4,8 @@
 
 import java.util.List;
 import java.util.ArrayList;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 //
 // Globale Variablen
@@ -11,7 +13,7 @@ import java.util.ArrayList;
 
 // Konstanten
 public static final double G = 6.673e-11d; // Gravitations-Konstante G
-public static final double SPEED = 1000;   // Simulationsgeschwindigkeit, 1 = 1 Sekunde pro Sekunde (sehr langsam)
+public static int SPEED = 1000;            // Simulationsgeschwindigkeit, 1 = 1 Sekunde pro Sekunde (sehr langsam)
 
 // Simulation
 public static List<Body> BODIES = new ArrayList(); // Liste für alle Körper, die in der Simulation verwendet werden
@@ -27,6 +29,7 @@ public static String INFO_FMT = "fps: %d\nspeed: %d\nscale: %f\ntranslation: (%d
 
 // Eingabe
 public static boolean CTRL = false; // Gibt an, ob "Steuerung" gedrückt ist
+public static Slider SPEED_SLIDER;
 
 //
 // Basisfunktionen
@@ -44,47 +47,106 @@ void setup()
         .set_color(#ffe000)
         .set_name("Sonne")
     );
-
+    
+    // Merkur
+    BODIES.add(
+        new Body(2000)
+        .set_color(#808080)
+        .set_name("Merkur")
+        .set_position(70, 0)
+        .set_velocity(0, 0.001)
+    );
+    
+    // Venus
+    BODIES.add(
+        new Body(2000)
+        .set_color(#cfbc9f)
+        .set_name("Venus")
+        .set_position(0, 180)
+        .set_velocity(-0.00055, 0)
+    );
+    
     // Erde
     BODIES.add(
-        new Body(10_000d)
-        .set_position(-200, 0)
-        .set_velocity(0, 0.0005)
-        .set_color(#00a0ff)
+        new Body(10_000)
+        .set_color(#9bbecf)
         .set_name("Erde")
-    );
-
-    // Mond um die Erde
-    BODIES.add(
-        new Body(1d)
-        .set_position(-190, 0)
-        .set_velocity(0, 0.0007)
-        .set_color(#505050)
-        .set_name("Mond")
+        .set_position(300, 0)
+        .set_velocity(0, 0.0005)
     );
     
     // Mars
     BODIES.add(
-        new Body(10_000d)
-        .set_position(0, 0, 350)
-        .set_velocity(0, 0.0004)
-        .set_color(#ff8800)
+        new Body(5000)
+        .set_color(#d98e77)
         .set_name("Mars")
+        .set_position(600, 0)
+        .set_velocity(0, 0.00034)
     );
+    
+    // Jupiter
+    BODIES.add(
+        new Body(20_000)
+        .set_color(#d6b77e)
+        .set_name("Jupiter")
+        .set_position(-2000, 0)
+        .set_velocity(0, -0.0002)
+    );
+    
+    // Saturn
+    BODIES.add(
+        new Body(18_000)
+        .set_color(#c4beb3)
+        .set_name("Saturn")
+        .set_position(-2800, 0)
+        .set_velocity(0, -0.00014)
+    );
+    
+    // Uranus
+    BODIES.add(
+        new Body(16_000)
+        .set_color(#baddde)
+        .set_name("Uranus")
+        .set_position(3500, 0)
+        .set_velocity(0, 0.00014)
+    );
+    
+    // Neptun
+    BODIES.add(
+        new Body(17_000)
+        .set_color(#819fb8)
+        .set_name("Neptun")
+        .set_position(-4500, 0)
+        .set_velocity(0, -0.0001)
+    );
+    
+    // Pluto
+    BODIES.add(
+        new Body(1000)
+        .set_color(#e0908d)
+        .set_name("Pluto")
+        .set_position(0, 0, 6500)
+        .set_velocity(-0.00006, 0)
+    );
+    
+    SPEED_SLIDER = new Slider(200, 20, 0, 10000, SPEED, "Speed");
 }
 
 // draw-Funktion
 void draw() 
 {
-    background(0);                        // Schwarzer Hintergrund
-    fill(255); // Setze die Farbe für die FPS-Anzeige: weiß > 30, rot <= 30, da bei niedrigen FPS-Zahlen die Simulation nich richtig funktionieren könnte
+    background(0); // Schwarzer Hintergrund
+    fill(255);     // Setze die Farbe für die FPS-Anzeige
     text(
         String.format(
             INFO_FMT, (int) frameRate, (int) (frameRate * SPEED), SCALE,
             (int) TRANSLATION.x, (int) TRANSLATION.y, (int) TRANSLATION.z,
             (int) degrees(ROTATION.x), (int) degrees(ROTATION.y), (int) degrees(ROTATION.z)
         ),
-    10, 20);               // Zeige die FPS-Zahl an
+    10, 20); // Zeige die FPS-Zahl an
+    
+    SPEED_SLIDER.render();
+    SPEED = SPEED_SLIDER.get_value();
 
     // Setze den Ursprung des Koordinatensystems auf die Mitte des Fensters
     // und verschiebe ihn um TRANSLATION
@@ -101,6 +163,9 @@ void draw()
         }
     ));
       
+    // Zeichne das x-y-Gitter
+    grid();
+
     // Zeichne 3 linien vom Ursprung aus, um das Koordinatensystem zu verdeutlichen
     PVector a = project(new PVector(100, 0, 0)); // Berechne die 2D-Koordinaten
     PVector b = project(new PVector(0, 100, 0));
@@ -129,7 +194,7 @@ PVector project(PVector v)
 {
     return ROTATION_MATRIX
         .copy()       // kopiere die Rotationsmatrix, um sicherzugehen, dass keine Werte verändert werden
-        .mult(v)      // multipliziere den Positionsvektop
+        .mult(v)      // multipliziere den Positionsvektor
         .mult(SCALE); // multipliziere mit der Skalierung
 }
 
@@ -168,6 +233,22 @@ void reset_renderer()
     SCALE = 1;
 }
 
+// Zeichnet ein Gitter auf der x-y-Ebene
+void grid()
+{
+    stroke(50);
+    for(int i = -10; i < 11; i++)
+    {   
+        PVector a = project(new PVector(10_000, i * 1000, 0));
+        PVector b = project(new PVector(-10_000, i * 1000, 0));
+        PVector c = project(new PVector(i * 1000, 10_000, 0));
+        PVector d = project(new PVector(i * 1000, -10_000, 0));
+        
+        line(a.x, a.y, b.x, b.y);
+        line(c.x, c.y, d.x, d.y);
+    }
+}
+
 //
 // Benutzereingabe
 //
@@ -185,6 +266,9 @@ void mouseWheel(MouseEvent e)
 // wird ausgeführt, wenn die Maus während dem Clicken bewegt wird
 void mouseDragged()
 {
+     if(SPEED_SLIDER.mouse_event())
+         return;
+  
      int diff_x = mouseX - pmouseX; // Berechne die Bewegung der Maus im letzten Frame
      int diff_y = mouseY - pmouseY; // Berechne die Bewegung der Maus im letzten Frame
      
