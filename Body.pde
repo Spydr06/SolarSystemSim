@@ -23,23 +23,22 @@ class Body
 
     public Body(double mass) 
     {
-        init(10);
+        this.mass = mass;
+        this.pos = new PVector();
+        this.vel = new PVector();
+        this.acc = new PVector();
+        this.trail = new PVector[100];
+        this.trail_roughness = 10;    
     }
 
     public Body(double mass, int trail_roughness)
-    {
-        init(trail_roughness);
-    }
-
-    // Initialisiere alle Variablen der Klasse
-    private void init(int trail_roughness)
     {
         this.mass = mass;
         this.pos = new PVector();
         this.vel = new PVector();
         this.acc = new PVector();
         this.trail = new PVector[100];
-        this.trail_roughness = trail_roughness;
+        this.trail_roughness = trail_roughness;    
     }
 
     //
@@ -84,15 +83,13 @@ class Body
         }
         endShape();
       
-        // Setze die Farbe
+        // Zeichne den Körper selbst
         stroke(this.col);
         fill(this.col);
-
         circle(draw_pos.x, draw_pos.y, 5); // Zeichne einen Kreis an den aktuellen Koordinaten
         
         if(!this.name.equals("")) // Wenn ein Name gesetzt ist, zeichne auch diesen
             text(this.name, draw_pos.x + 10, draw_pos.y + 10);
-
     }
 
     public void apply_force(Body b)
