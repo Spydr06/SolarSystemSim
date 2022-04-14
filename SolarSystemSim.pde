@@ -29,7 +29,7 @@ public static String INFO_FMT = "fps: %d\nspeed: %d\nscale: %f\ntranslation: (%d
 
 // Eingabe
 public static boolean CTRL = false; // Gibt an, ob "Steuerung" gedrückt ist
-public static Slider SPEED_SLIDER;
+public static Slider SPEED_SLIDER; // Schieberegler für die Geschwindigkeit
 
 //
 // Basisfunktionen
@@ -50,7 +50,7 @@ public void setup()
     
     // Merkur
     BODIES.add(
-        new Body(2000)
+        new Body(2000, 2)
         .set_color(#808080)
         .set_name("Merkur")
         .set_position(70, 0)
@@ -59,7 +59,7 @@ public void setup()
     
     // Venus
     BODIES.add(
-        new Body(2000)
+        new Body(2000, 3)
         .set_color(#cfbc9f)
         .set_name("Venus")
         .set_position(0, 180)
@@ -68,7 +68,7 @@ public void setup()
     
     // Erde
     BODIES.add(
-        new Body(10_000)
+        new Body(10_000, 8)
         .set_color(#9bbecf)
         .set_name("Erde")
         .set_position(300, 0)
@@ -122,7 +122,7 @@ public void setup()
     
     // Pluto
     BODIES.add(
-        new Body(1000)
+        new Body(1000, 100)
         .set_color(#e0908d)
         .set_name("Pluto")
         .set_position(0, 0, 6500)
@@ -145,11 +145,11 @@ public void draw()
         ),
     10, 20); // Zeige die FPS-Zahl an
     
-    SPEED_SLIDER.render();
-    SPEED = SPEED_SLIDER.get_value();
+    SPEED_SLIDER.render(); // zeichne den Schieberegler 
+    SPEED = SPEED_SLIDER.get_value(); // aktualisiere die "SPEED"-Variable mit dem neuen Wert
 
     // Setze den Ursprung des Koordinatensystems auf die Mitte des Fensters
-    // und verschiebe ihn um TRANSLATION
+    // und verschiebe ihn um "TRANSLATION"
     translate(width / 2 + TRANSLATION.x, height / 2 + TRANSLATION.y); 
 
     // Generiere eine neue Rotationsmatrix für das Rendering
@@ -166,22 +166,24 @@ public void draw()
     // Zeichne das x-y-Gitter
     grid();
 
-    // Zeichne 3 linien vom Ursprung aus, um das Koordinatensystem zu verdeutlichen
-    PVector a = project(new PVector(100, 0, 0)); // Berechne die 2D-Koordinaten
-    PVector b = project(new PVector(0, 100, 0));
-    PVector c = project(new PVector(0, 0, 100));
-    
-    stroke(#ff0000);      // Rot für die
-    line(0, 0, a.x, a.y); // X-Koordinate
-    stroke(#00ff00);      // Grün für die
-    line(0, 0, b.x, b.y); // Y-Koordinate
-    stroke(#0000ff);      // Blau für die
-    line(0, 0, c.x, c.y); // Z-Koordinate
-
     BODIES.forEach((body) -> { // Für jeden registrieten Körper:
         body.update(SPEED);    // Update und
         body.render();         // zeichne ihn
     });
+}
+
+//
+// Hilfsfunktionen
+//
+
+// Schiebt alle Elemente eines Arrays des unbekannten Datentyps
+// T um einen Index nach hinten, um platz für ein neues zu machen.
+// Dabei wird das letzte Element gelöscht.
+<T> void push_back(T[] array, T value)
+{
+    for(int i = array.length - 1; i > 0; i--)
+        array[i] = array[i - 1];
+    array[0] = value;
 }
 
 //

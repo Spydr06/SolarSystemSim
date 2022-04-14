@@ -13,16 +13,33 @@ class Body
     private String name = "";    // Name des Körpers
     private color col = #ffffff; // die Farbe, mit der der Körper gezeichnet wird
 
+    private PVector[] trail;       // Array, das die letzten Positionen des Planteten speichert
+    private int trail_counter = 0; // Zähler um herauszufinden, wann ein neues Element in den Pfad geschoben werden soll
+    private int trail_roughness;   // Grobheit des Pfades (grob -> lang aber ungenau <> fein -> kurz aber genau)
+
     //
     // Konstruktor
     //
 
     public Body(double mass) 
     {
+        init(10);
+    }
+
+    public Body(double mass, int trail_roughness)
+    {
+        init(trail_roughness);
+    }
+
+    // Initialisiere alle Variablen der Klasse
+    private void init(int trail_roughness)
+    {
         this.mass = mass;
         this.pos = new PVector();
         this.vel = new PVector();
         this.acc = new PVector();
+        this.trail = new PVector[100];
+        this.trail_roughness = trail_roughness;
     }
 
     //
@@ -36,6 +53,13 @@ class Body
         this.pos.add(this.vel.copy().mult((float) delta)); // Die Geschwindigkeit multipliziert mit der Zeit ergibt die neue Position
 
         this.acc.set(0, 0, 0); // setze die Beschleunigung zurück
+
+        // Wenn genug Zeit vergangen ist, schiebe die aktuelle Position in den Pfad
+        if(this.trail_counter++ == this.trail_roughness)
+        {        
+            push_back(this.trail, this.pos.copy());
+            this.trail_counter = 0; // Setze den Zähler zurück
+        }
     }
 
     // Funktion zum Zeichnen eines Körpers
@@ -45,8 +69,20 @@ class Body
         PVector xy = project(new PVector(this.pos.x, this.pos.y, 0));
 
         // Zeichne die Höhenlinie (position auf x, y, 0)
+        noFill();
         stroke(50);
         line(draw_pos.x, draw_pos.y, xy.x, xy.y);
+
+        // Zeichne den Pfad
+        stroke(this.col, 100);
+        beginShape();
+        vertex(draw_pos.x, draw_pos.y);
+        for(int i = 0; i < this.trail.length && this.trail[i] != null; i++)
+        {
+            PVector trail_draw_pos = project(this.trail[i]);
+            vertex(trail_draw_pos.x, trail_draw_pos.y);
+        }
+        endShape();
       
         // Setze die Farbe
         stroke(this.col);
