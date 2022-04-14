@@ -36,7 +36,7 @@ public static Slider SPEED_SLIDER;
 //
 
 // setup-Funktion
-void setup() 
+public void setup() 
 {
     // Öffne ein Fenster mit dem P2D renderer, da er OpenGL-basiert ist -> bessere Performance
     size(1326, 786, P2D);
@@ -44,7 +44,7 @@ void setup()
     // Die Sonne in der Mitte
     BODIES.add(
       new Body(1_000_000d)
-        .set_color(#ffe000)
+        .set_color(#ffd232)
         .set_name("Sonne")
     );
     
@@ -90,7 +90,7 @@ void setup()
         .set_color(#d6b77e)
         .set_name("Jupiter")
         .set_position(-2000, 0)
-        .set_velocity(0, -0.0002)
+        .set_velocity(0, -0.00019)
     );
     
     // Saturn
@@ -98,8 +98,8 @@ void setup()
         new Body(18_000)
         .set_color(#c4beb3)
         .set_name("Saturn")
-        .set_position(-2800, 0)
-        .set_velocity(0, -0.00014)
+        .set_position(-2800, 0, 1000)
+        .set_velocity(0, -0.000145)
     );
     
     // Uranus
@@ -107,7 +107,7 @@ void setup()
         new Body(16_000)
         .set_color(#baddde)
         .set_name("Uranus")
-        .set_position(3500, 0)
+        .set_position(3500, 0, -700)
         .set_velocity(0, 0.00014)
     );
     
@@ -126,14 +126,14 @@ void setup()
         .set_color(#e0908d)
         .set_name("Pluto")
         .set_position(0, 0, 6500)
-        .set_velocity(-0.00006, 0)
+        .set_velocity(-0.000065, 0)
     );
     
     SPEED_SLIDER = new Slider(200, 20, 0, 10000, SPEED, "Speed");
 }
 
 // draw-Funktion
-void draw() 
+public void draw() 
 {
     background(0); // Schwarzer Hintergrund
     fill(255);     // Setze die Farbe für die FPS-Anzeige
@@ -190,7 +190,7 @@ void draw()
 
 // Projeziert einen 3D-Punkt (als Vektor) auf eine 2D-Fläche
 // mithilfe der Rotationsmatrix
-PVector project(PVector v)
+public PVector project(PVector v)
 {
     return ROTATION_MATRIX
         .copy()       // kopiere die Rotationsmatrix, um sicherzugehen, dass keine Werte verändert werden
@@ -199,7 +199,7 @@ PVector project(PVector v)
 }
 
 // Erstellt eine matrix, die 
-Matrix get_rotation_matrix(PVector r)
+private Matrix get_rotation_matrix(PVector r)
 {
     // Ressourcen für Rotation: https://www.imatest.com/support/docs/pre-5-2/geometric-calibration-deprecated/rotations-and-translations-in-3d/
     return new Matrix(
@@ -226,7 +226,7 @@ Matrix get_rotation_matrix(PVector r)
 }
 
 // Funktion um den Renderer auf Startwerte zu setzen
-void reset_renderer()
+private void reset_renderer()
 {
     ROTATION = new PVector();
     TRANSLATION = new PVector();
@@ -234,7 +234,7 @@ void reset_renderer()
 }
 
 // Zeichnet ein Gitter auf der x-y-Ebene
-void grid()
+private void grid()
 {
     stroke(50);
     for(int i = -10; i < 11; i++)
@@ -254,7 +254,7 @@ void grid()
 //
 
 // wird ausgeführt, wenn das Mausrad gedreht wurde
-void mouseWheel(MouseEvent e)
+public void mouseWheel(MouseEvent e)
 {
     float c = e.getCount(); // gibt an, in welche Richtung das Mausrad gedreht wurde:
                             // 0: gar nicht
@@ -264,7 +264,7 @@ void mouseWheel(MouseEvent e)
 }
 
 // wird ausgeführt, wenn die Maus während dem Clicken bewegt wird
-void mouseDragged()
+public void mouseDragged()
 {
      if(SPEED_SLIDER.mouse_event())
          return;
@@ -283,7 +283,7 @@ void mouseDragged()
 }
 
 // wird ausgeführt, wenn eine Taste gedrückt ist
-void keyPressed() {
+public void keyPressed() {
     if(key == CODED && keyCode == CONTROL) // Wenn die Taste "Steuerung" ist,
         CTRL = true;                       // setze CTRL auf true
     if(keyCode == 'R')    // Wenn 'R' gedrückt ist,
@@ -291,7 +291,7 @@ void keyPressed() {
 }
 
 // wird ausgeführt, wenn eine Taste losgelassen wird
-void keyReleased() {
+public void keyReleased() {
     if(key == CODED && keyCode == CONTROL) // Wenn die Taste "Steuerung" ist,
         CTRL = false;                      // setze CTRL auf false
 }
