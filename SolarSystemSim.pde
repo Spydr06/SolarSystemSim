@@ -25,7 +25,7 @@ public static PVector TRANSLATION = new PVector(); // Gibt die Verschiebung an
 public static float SCALE = 1;                     // Gibt die Skalierung an
 
 // Informationen
-public static String INFO_FMT = "fps: %d\nspeed: %d\nscale: %f\ntranslation: (%d|%d|%d)\nrotation: (%d°|%d°|%d°)";
+public static String INFO_FMT = "=== DEBUG ===\nfps: %d\nspeed: %d\nscale: %f\ntranslation: (%d|%d|%d)\nrotation: (%d°|%d°|%d°)";
 
 // Eingabe
 public static boolean CTRL = false; // Gibt an, ob "Steuerung" gedrückt ist
@@ -129,7 +129,7 @@ public void setup()
         .set_velocity(-0.000065, 0)
     );
     
-    SPEED_SLIDER = new Slider(200, 20, 0, 10000, SPEED, "Speed");
+    SPEED_SLIDER = new Slider(200, 20, 0, 10000, SPEED, "Geschwindigkeit");
 }
 
 // draw-Funktion

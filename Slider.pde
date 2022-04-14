@@ -49,7 +49,7 @@ class Slider
          ); 
          
          textAlign(CENTER);
-         text(String.format("%s: %d", this.name, this.val), this.x + this.w / 2, this.y + this.h * 1.75);
+         text(String.format("%s: %d%%", this.name, (int) map(this.val, this.lo, this.hi, 0, 100)), this.x + this.w / 2, this.y + this.h * 1.75);
          textAlign(LEFT);
      }
      
