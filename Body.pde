@@ -2,6 +2,12 @@
 class Body 
 {
     //
+    // Konstante
+    //
+    
+    private static final int NUM_TRAIL_ELEMENTS = 100, // Gibt an, wie viele Elemente (Punkte) ein Pfad hat
+                             DEFAULT_TRAIL_ROUGHNESS = 10; // Standardwert für die Grobheit des Pfades
+    //
     // Variablen
     //
 
@@ -12,11 +18,11 @@ class Body
 
     private String name = "";    // Name des Körpers
     private color col = #ffffff; // die Farbe, mit der der Körper gezeichnet wird
+    private PGraphics glow;
 
-    private PVector[] trail;       // Array, das die letzten Positionen des Planteten speichert
-    private int trail_counter = 0; // Zähler um herauszufinden, wann ein neues Element in den Pfad geschoben werden soll
-    private int trail_roughness;   // Grobheit des Pfades (grob -> lang aber ungenau <> fein -> kurz aber genau)
-
+    private PVector[] trail;      // Array, das die letzten Positionen des Planteten speichert
+    private long trail_roughness; // Grobheit des Pfades (grob -> lang aber ungenau <> fein -> kurz aber genau)
+                                  // (genauer gesagt der Abstand zwischen dem letzten Pfadpunkt und der Position)
     //
     // Konstruktor
     //
@@ -27,17 +33,17 @@ class Body
         this.pos = new PVector();
         this.vel = new PVector();
         this.acc = new PVector();
-        this.trail = new PVector[100];
-        this.trail_roughness = 10;    
+        this.trail = new PVector[NUM_TRAIL_ELEMENTS];
+        this.trail_roughness = DEFAULT_TRAIL_ROUGHNESS;   
     }
 
-    public Body(double mass, int trail_roughness)
+    public Body(double mass, long trail_roughness)
     {
         this.mass = mass;
         this.pos = new PVector();
         this.vel = new PVector();
         this.acc = new PVector();
-        this.trail = new PVector[100];
+        this.trail = new PVector[NUM_TRAIL_ELEMENTS];
         this.trail_roughness = trail_roughness;    
     }
 
@@ -53,12 +59,11 @@ class Body
 
         this.acc.set(0, 0, 0); // setze die Beschleunigung zurück
 
-        // Wenn genug Zeit vergangen ist, schiebe die aktuelle Position in den Pfad
-        if(this.trail_counter++ == this.trail_roughness)
-        {        
+        // Wenn der Körper sich weit genug bewegt hat (oder kein Pfad vorhanden ist (trail[0] == null)),
+        // schiebe alle Elemente des Pfades um einen Index nach hinten und füge die aktuelle Position
+        // als neues Element 0 hinzu.
+        if(this.trail[0] == null || this.pos.dist(this.trail[0]) > this.trail_roughness)
             push_back(this.trail, this.pos.copy());
-            this.trail_counter = 0; // Setze den Zähler zurück
-        }
     }
 
     // Funktion zum Zeichnen eines Körpers
@@ -84,8 +89,13 @@ class Body
         endShape();
       
         // Zeichne den Körper selbst
+        // Setze die korrekte Farbe
         stroke(this.col);
         fill(this.col);
+        
+        // wenn der Körper leuchten soll, zeichne das vorgerenderte Bild an den korrekten Koordinaten
+        if(this.glow != null)
+            image(this.glow, draw_pos.x - this.glow.width / 2, draw_pos.y - this.glow.height / 2);
         circle(draw_pos.x, draw_pos.y, 5); // Zeichne einen Kreis an den aktuellen Koordinaten
         
         if(!this.name.equals("")) // Wenn ein Name gesetzt ist, zeichne auch diesen
@@ -107,6 +117,32 @@ class Body
         PVector F_AB = AB.mult((float) F / sqrt(pow(AB.x, 2) + pow(AB.y, 2) + pow(AB.z, 2))); // Wende die Kraft F auf diesen Körper in Richtung des Körpers b an
 
         this.acc.add(F_AB.div((float) this.mass)); // Beschleunige den Körper
+    }
+      
+    // Zeichnet einen Leuchteffekt in ein Bild (PImage entspricht PGraphics),
+    // welcher später in der render() methode verwendet werden kann.
+    // Der effekt wird hier aus Performancegründen vorgerendert.
+    public Body glow() {        
+        if(this.glow != null) // wenn es schon einen Effekt gibt,
+            return this;      // Beende die Funktion
+            
+        this.glow = createGraphics(100, 100); // Ansonsten erstelle eine neue PGraphics-Instanz von 100x100 Pixeln
+        this.glow.beginDraw(); // Beginne den Zeichenmodus
+            
+        // setze die korrekte Farbe
+        this.glow.fill(this.col);
+        this.glow.stroke(this.col);
+        
+        // 1. Render-vorgang
+        this.glow.circle(this.glow.width / 2, this.glow.height / 2, 40);
+        this.glow.filter(BLUR, 20);
+        
+        // 2. Render-vorgang (bessere Ergebnisse)
+        this.glow.circle(this.glow.width / 2, this.glow.height / 2, 20);
+        this.glow.filter(BLUR, 10);
+        
+        this.glow.endDraw(); // Beende den Zeichenmodus
+        return this;
     }
 
     //

@@ -43,9 +43,10 @@ public void setup()
 
     // Die Sonne in der Mitte
     BODIES.add(
-      new Body(1_000_000d)
-        .set_color(#ffd232)
+      new Body(1_000_000d, 10)
+        .set_color(#fcde7b)
         .set_name("Sonne")
+        .glow()
     );
     
     // Merkur
@@ -86,7 +87,7 @@ public void setup()
     
     // Jupiter
     BODIES.add(
-        new Body(20_000)
+        new Body(20_000, 80)
         .set_color(#d6b77e)
         .set_name("Jupiter")
         .set_position(-2000, 0)
@@ -95,7 +96,7 @@ public void setup()
     
     // Saturn
     BODIES.add(
-        new Body(18_000)
+        new Body(18_000, 80)
         .set_color(#c4beb3)
         .set_name("Saturn")
         .set_position(-2800, 0, 1000)
@@ -104,7 +105,7 @@ public void setup()
     
     // Uranus
     BODIES.add(
-        new Body(16_000)
+        new Body(16_000, 100)
         .set_color(#baddde)
         .set_name("Uranus")
         .set_position(3500, 0, -700)
@@ -113,20 +114,20 @@ public void setup()
     
     // Neptun
     BODIES.add(
-        new Body(17_000)
+        new Body(17_000, 100)
         .set_color(#819fb8)
         .set_name("Neptun")
         .set_position(-4500, 0)
-        .set_velocity(0, -0.0001)
+        .set_velocity(0, -0.00013)
     );
     
     // Pluto
     BODIES.add(
-        new Body(1000, 100)
+        new Body(1000, 150)
         .set_color(#e0908d)
         .set_name("Pluto")
         .set_position(0, 0, 6500)
-        .set_velocity(-0.000065, 0)
+        .set_velocity(-0.000066, 0)
     );
     
     SPEED_SLIDER = new Slider(200, 20, 0, 10000, SPEED, "Geschwindigkeit");
@@ -225,6 +226,16 @@ private Matrix get_rotation_matrix(PVector r)
     ));
 
     // Die drei Matrizen Rx,Ry & Rz können durch Multiplikation zusammengefasst werden
+}
+
+void update_camera()
+{
+    // Update translation  
+    {
+        
+    }
+    
+    // Update rotation
 }
 
 // Funktion um den Renderer auf Startwerte zu setzen
