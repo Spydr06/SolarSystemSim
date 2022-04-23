@@ -2,10 +2,8 @@
 // Library Imports
 //
 
-import java.util.List;
-import java.util.ArrayList;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import java.util.ArrayList; // für ArrayList<T>
+import java.util.Arrays;    // für Arrays.copyOf()
 
 //
 // Globale Variablen
@@ -16,7 +14,7 @@ public static final double G = 6.673e-11d; // Gravitations-Konstante G
 public static int SPEED = 1000;            // Simulationsgeschwindigkeit, 1 = 1 Sekunde pro Sekunde (sehr langsam)
 
 // Simulation
-public static List<Body> BODIES = new ArrayList(); // Liste für alle Körper, die in der Simulation verwendet werden
+public static ArrayList<Body> BODIES = new ArrayList(); // Liste für alle Körper, die in der Simulation verwendet werden
 
 // Rendering
 public static PVector ROTATION = new PVector();    // Gibt die Rotation an
@@ -137,6 +135,10 @@ public void setup()
 public void draw() 
 {
     background(0); // Schwarzer Hintergrund
+
+    // Overlay
+    // ------------------------------------------------------------------
+    
     fill(255);     // Setze die Farbe für die FPS-Anzeige
     text(
         String.format(
@@ -148,6 +150,9 @@ public void draw()
     
     SPEED_SLIDER.render(); // zeichne den Schieberegler 
     SPEED = SPEED_SLIDER.get_value(); // aktualisiere die "SPEED"-Variable mit dem neuen Wert
+
+    // Simulation
+    // ------------------------------------------------------------------
 
     // Setze den Ursprung des Koordinatensystems auf die Mitte des Fensters
     // und verschiebe ihn um "TRANSLATION"
@@ -180,6 +185,7 @@ public void draw()
 // Schiebt alle Elemente eines Arrays des unbekannten Datentyps
 // T um einen Index nach hinten, um platz für ein neues zu machen.
 // Dabei wird das letzte Element gelöscht.
+// 0, [1, 2, 3, 4, 5] -> 0, [1, 1, 2, 3, 4] -> [0, 1, 2, 3, 4]
 <T> void push_back(T[] array, T value)
 {
     for(int i = array.length - 1; i > 0; i--)
@@ -225,17 +231,7 @@ private Matrix get_rotation_matrix(PVector r)
         } 
     ));
 
-    // Die drei Matrizen Rx,Ry & Rz können durch Multiplikation zusammengefasst werden
-}
-
-void update_camera()
-{
-    // Update translation  
-    {
-        
-    }
-    
-    // Update rotation
+    // Die drei Matrizen Rx, Ry & Rz können durch Multiplikation zusammengefasst werden
 }
 
 // Funktion um den Renderer auf Startwerte zu setzen

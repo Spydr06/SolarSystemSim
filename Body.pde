@@ -2,7 +2,7 @@
 class Body 
 {
     //
-    // Konstante
+    // Konstanten
     //
     
     private static final int NUM_TRAIL_ELEMENTS = 100, // Gibt an, wie viele Elemente (Punkte) ein Pfad hat
@@ -11,18 +11,18 @@ class Body
     // Variablen
     //
 
-    private PVector pos; // die Position des Körpers
-    private PVector vel; // die Geschwindigkeit des Körpers
-    private PVector acc; // die Beschleunigung des Körpers
+    private PVector pos = new PVector(); // die Position des Körpers
+    private PVector vel = new PVector(); // die Geschwindigkeit des Körpers
+    private PVector acc = new PVector(); // die Beschleunigung des Körpers
     private double mass; // die Masse des Körpers
 
     private String name = "";    // Name des Körpers
     private color col = #ffffff; // die Farbe, mit der der Körper gezeichnet wird
-    private PGraphics glow;
+    private PGraphics glow;      // Ein vorgerendertes Bild für den Leuchteffekt 
 
-    private PVector[] trail;      // Array, das die letzten Positionen des Planteten speichert
-    private long trail_roughness; // Grobheit des Pfades (grob -> lang aber ungenau <> fein -> kurz aber genau)
-                                  // (genauer gesagt der Abstand zwischen dem letzten Pfadpunkt und der Position)
+    private PVector[] trail = new PVector[NUM_TRAIL_ELEMENTS]; // Array, das die letzten Positionen des Planteten speichert
+    private long trail_roughness = DEFAULT_TRAIL_ROUGHNESS;    // Grobheit des Pfades (grob -> lang aber ungenau <> fein -> kurz aber genau)
+                                                               // (genauer gesagt der Abstand zwischen dem letzten Pfadpunkt und der Position)
     //
     // Konstruktor
     //
@@ -30,20 +30,11 @@ class Body
     public Body(double mass) 
     {
         this.mass = mass;
-        this.pos = new PVector();
-        this.vel = new PVector();
-        this.acc = new PVector();
-        this.trail = new PVector[NUM_TRAIL_ELEMENTS];
-        this.trail_roughness = DEFAULT_TRAIL_ROUGHNESS;   
     }
 
     public Body(double mass, long trail_roughness)
     {
         this.mass = mass;
-        this.pos = new PVector();
-        this.vel = new PVector();
-        this.acc = new PVector();
-        this.trail = new PVector[NUM_TRAIL_ELEMENTS];
         this.trail_roughness = trail_roughness;    
     }
 
@@ -52,10 +43,10 @@ class Body
     //
 
     // Funktion zum Aktualisieren der Parameter eines Körpers
-    public void update(double delta)
+    public void update(double speed)
     {
-        this.vel.add(this.acc.copy().mult((float) delta)); // Die Beschleunigung multipliziert mit der Zeit ergibt die Geschwindigkeit
-        this.pos.add(this.vel.copy().mult((float) delta)); // Die Geschwindigkeit multipliziert mit der Zeit ergibt die neue Position
+        this.vel.add(this.acc.copy().mult((float) speed)); // Die Beschleunigung multipliziert mit der Zeit ergibt die Geschwindigkeit
+        this.pos.add(this.vel.copy().mult((float) speed)); // Die Geschwindigkeit multipliziert mit der Zeit ergibt die neue Position
 
         this.acc.set(0, 0, 0); // setze die Beschleunigung zurück
 
@@ -78,15 +69,27 @@ class Body
         line(draw_pos.x, draw_pos.y, xy.x, xy.y);
 
         // Zeichne den Pfad
-        stroke(this.col, 100);
+        strokeWeight(2);
         beginShape();
         vertex(draw_pos.x, draw_pos.y);
+        
+        // Füge einen Punkt zur aktuellen PShape (begonnen mit beginShape()) für jedes Element im Pfad-array hinzu
         for(int i = 0; i < this.trail.length && this.trail[i] != null; i++)
         {
             PVector trail_draw_pos = project(this.trail[i]);
+            
+            // Wenn der projezierte Punkt auserhalb des Fensters liegt, 
+            // setze die Farbe komplett durchsichtig, um Renderfehlern vorzubeugen.
+            if(trail_draw_pos.x < -width/2 || trail_draw_pos.x > width/2 ||
+               trail_draw_pos.y < -height/2 || trail_draw_pos.y > height/2)
+                stroke(this.col, 0);
+            else
+                stroke(this.col, 100); // Normalerweise hat der Pfad einen Alphawert von 100 (etwas transparent -> 255 = solide, 0 = unsichtbar)
+            
             vertex(trail_draw_pos.x, trail_draw_pos.y);
         }
         endShape();
+        strokeWeight(1);
       
         // Zeichne den Körper selbst
         // Setze die korrekte Farbe

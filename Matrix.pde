@@ -1,5 +1,3 @@
-import java.util.Arrays;
-
 // Klasse, die eine 3x3 Matrix darstellt
 class Matrix
 {
@@ -40,9 +38,8 @@ class Matrix
     }
 
     // Matrixmultiplikation (3x3 * 3x3):
-    // Bei der Multiplikation zweier matrixen wird zu jeder Reihe der ersten Matrix
+    // Bei der Multiplikation zweier Matrizen wird zu jeder Reihe der ersten Matrix
     // jede Spalte der zweiten Matrix multipliziert, und dann zusammenaddiert.
-    // Referenz: https://www.fhybea.com/en/multiplication-matrix-3x3.html
     public Matrix mult(Matrix b)
     {
         this.m = new float[] {
@@ -80,7 +77,7 @@ class Matrix
     // Kopiert eine Matrix, sodass keine Referenz mehr besteht
     public Matrix copy()
     {
-        float[] m = Arrays.copyOf(this.m, 9);
+        float[] m = Arrays.copyOf(this.m, this.m.length);
         return new Matrix(m);
     }
 }
