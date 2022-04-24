@@ -5,15 +5,17 @@ class Body
     // Konstanten
     //
     
-    private static final int NUM_TRAIL_ELEMENTS = 100, // Gibt an, wie viele Elemente (Punkte) ein Pfad hat
-                             DEFAULT_TRAIL_ROUGHNESS = 10; // Standardwert für die Grobheit des Pfades
+    private static final int NUM_TRAIL_ELEMENTS = 100,     // Gibt an, wie viele Elemente (Punkte) ein Pfad hat
+                             DEFAULT_TRAIL_ROUGHNESS = 10, // Standardwert für die Grobheit des Pfades
+                             GLOW_SIZE = 120;              // Größe des Leuchteffekts
+    
     //
     // Variablen
     //
 
-    private PVector pos = new PVector(); // die Position des Körpers
-    private PVector vel = new PVector(); // die Geschwindigkeit des Körpers
-    private PVector acc = new PVector(); // die Beschleunigung des Körpers
+    private PVector pos = new PVector(), // die Position des Körpers
+                    vel = new PVector(), // die Geschwindigkeit des Körpers
+                    acc = new PVector(); // die Beschleunigung des Körpers
     private double mass; // die Masse des Körpers
 
     private String name = "";    // Name des Körpers
@@ -60,36 +62,31 @@ class Body
     // Funktion zum Zeichnen eines Körpers
     public void render() 
     {
-        PVector draw_pos = project(this.pos);   
-        PVector xy = project(new PVector(this.pos.x, this.pos.y, 0));
+        PVector draw_pos = project(this.pos);                         // Projeziere die aktuelle 3d-Position auf das 2d-Fenster   
+        PVector xy = project(new PVector(this.pos.x, this.pos.y, 0)); // Punkt auf der XY-Ebene, mit den gleichen XY-Koordinaten (für die Höhenlinie)
 
         // Zeichne die Höhenlinie (position auf x, y, 0)
-        noFill();
         stroke(50);
         line(draw_pos.x, draw_pos.y, xy.x, xy.y);
 
         // Zeichne den Pfad
-        strokeWeight(2);
-        beginShape();
-        vertex(draw_pos.x, draw_pos.y);
+        noFill();
+        stroke(this.col, 100); // Normalerweise hat der Pfad einen Alphawert von 100 (etwas transparent -> 255 = solide, 0 = unsichtbar)            
+        strokeWeight(2);       // Liniendicke auf 2px
+        beginShape();          // Beginne eine Form (Linie) aus Punkten
+        vertex(draw_pos.x, draw_pos.y); // Erster Punkt auf der aktuellen Position
         
         // Füge einen Punkt zur aktuellen PShape (begonnen mit beginShape()) für jedes Element im Pfad-array hinzu
         for(int i = 0; i < this.trail.length && this.trail[i] != null; i++)
         {
             PVector trail_draw_pos = project(this.trail[i]);
-            
-            // Wenn der projezierte Punkt auserhalb des Fensters liegt, 
-            // setze die Farbe komplett durchsichtig, um Renderfehlern vorzubeugen.
-            if(trail_draw_pos.x < -width/2 || trail_draw_pos.x > width/2 ||
-               trail_draw_pos.y < -height/2 || trail_draw_pos.y > height/2)
+            if(is_last(this.trail, i))
                 stroke(this.col, 0);
-            else
-                stroke(this.col, 100); // Normalerweise hat der Pfad einen Alphawert von 100 (etwas transparent -> 255 = solide, 0 = unsichtbar)
-            
+    
             vertex(trail_draw_pos.x, trail_draw_pos.y);
         }
-        endShape();
-        strokeWeight(1);
+        endShape(); // Beende die Form
+        strokeWeight(1); // Liniendicke auf 1px
       
         // Zeichne den Körper selbst
         // Setze die korrekte Farbe
@@ -129,7 +126,7 @@ class Body
         if(this.glow != null) // wenn es schon einen Effekt gibt,
             return this;      // Beende die Funktion
             
-        this.glow = createGraphics(100, 100); // Ansonsten erstelle eine neue PGraphics-Instanz von 100x100 Pixeln
+        this.glow = createGraphics(GLOW_SIZE, GLOW_SIZE); // Ansonsten erstelle eine neue PGraphics-Instanz
         this.glow.beginDraw(); // Beginne den Zeichenmodus
             
         // setze die korrekte Farbe

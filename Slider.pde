@@ -39,15 +39,22 @@ class Slider
     // Wenn das Event zutrifft, setze einen neuen Wert.
     public boolean mouse_event()
     {         
-        // Überprüft, ob die Maus auf dem Slider liegt
-        if(mouseX > this.x && mouseX < this.x + this.w &&
-           mouseY > this.y && mouseY < this.y + this.h)
-        {
-            val = (int) map(mouseX, this.x, this.x + this.w, lo, hi); // neuen Wert setzen (von `lo` bis `hi`)
-            return true;
-        }
+        // Überprüft, ob die Maus auf dem Regler liegt.
+        if(!this.cursor_above())
+            return false; // Wenn nicht, beende die Funktion negativ.
          
-        return false;
+        float percentage = map(mouseX, this.x, this.x + this.w, 0, 100);
+        this.val = percentage < 1 ? this.lo : percentage > 99 ? this.hi // für sehr klein / große Prozentwerte, setze `val` direkt auf `lo` bzw. `hi`, 
+            : (int) map(mouseX, this.x, this.x + this.w, lo, hi);       // berechne sonst einen genauen Wert.
+            
+        return true;
+    }
+    
+    // Funktion um zu überprüfen, dass die Maus über dem Regler liegt
+    public boolean cursor_above()
+    {
+        return mouseX > this.x && mouseX < this.x + this.w &&
+               mouseY > this.y && mouseY < this.y + this.h;
     }
      
     // Zeichnet den Schieberegler
@@ -79,5 +86,16 @@ class Slider
     public int get_value()
     {
         return this.val;
+    }
+    
+    //
+    // Setter
+    //
+    
+    public Slider set_pos(int x, int y)
+    {
+        this.x = x;
+        this.y = y;
+        return this;
     }
 }
