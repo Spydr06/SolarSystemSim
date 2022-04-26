@@ -9,17 +9,17 @@
 ### Was der Code kann: 
 - Simulation von Gravitationskräften zwischen (praktisch) beliebig vielen Objekten (theoretisch limitiert durch das 32-Bit Integer limit von `2147483647`, praktisch durch performance- und Speicherlimits)
 - 3D-Editorkamera und -steuerung:
-<br/>
+
 _Maus_ zum Rotieren von X und Z Achse
-<br/>
+
 _CTRL + Maus_ zum Verschieben des Koordinatensystems
-<br/>
+
 _CTRL + R_ zum Zurücksetzen der Kamera
-<br/>
+
 _CTRL + D_ zum Anzeigen/Verstecken von Debuginformationen
-<br/>
+
 > manchmal müssen Tastaturbefehle länger/mehrmals gedrückt werden, um erkannt zu werden, Gründe dafür: niedrige FrameRate
-<br/>
+
 - Geschwindigkeitsregler
 - Pfade der Körper
 - Leuchteffekt für Objekte (z.B. Sterne)
