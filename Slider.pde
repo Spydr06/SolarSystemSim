@@ -5,13 +5,14 @@ class Slider
     // Variablen
     // 
   
-    private int x,   // x-Koordinate
-                y,   // y-Koordinate
+    private int x = 0,   // x-Koordinate
+                y = 0,   // y-Koordinate
                 w = 200, // Breite
-                h = 20,  // Höhe
-                lo,  // Minimum
-                hi,  // Maximum
-                val; // Wert
+                h = 20;  // Höhe
+                
+    private float lo,  // Minimum
+                   hi,  // Maximum
+                   val; // Wert
                  
     private String name; // Name
      
@@ -19,10 +20,8 @@ class Slider
     // Konstruktor
     //
      
-    public Slider(int x, int y, int lo, int hi, int val, String name)
+    public Slider(float lo, float hi, float val, String name)
     {
-        this.x = x;
-        this.y = y;
         this.lo = lo;
         this.hi = hi;
         this.val = val;
@@ -45,7 +44,7 @@ class Slider
          
         float percentage = map(mouseX, this.x, this.x + this.w, 0, 100);
         this.val = percentage < 1 ? this.lo : percentage > 99 ? this.hi // für sehr klein / große Prozentwerte, setze `val` direkt auf `lo` bzw. `hi`, 
-            : (int) map(mouseX, this.x, this.x + this.w, lo, hi);       // berechne sonst einen genauen Wert.
+            : map(mouseX, this.x, this.x + this.w, lo, hi);       // berechne sonst einen genauen Wert.
             
         return true;
     }
@@ -74,7 +73,7 @@ class Slider
          
         // Drucke den Text (Beschreibung + Wert) darunter
         textAlign(CENTER);
-        text(String.format("%s: %d%%", this.name, (int) map(this.val, this.lo, this.hi, 0, 100)), this.x + this.w / 2, this.y + this.h * 1.75);
+        text(String.format("%s: %.1f", this.name, this.val), this.x + this.w / 2, this.y + this.h * 1.75);
         textAlign(LEFT);
     }
      
@@ -83,7 +82,7 @@ class Slider
     //
      
     // gibt den Wert zurück
-    public int get_value()
+    public float get_value()
     {
         return this.val;
     }

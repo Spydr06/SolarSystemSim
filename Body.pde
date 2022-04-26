@@ -108,7 +108,7 @@ class Body
         double g = (
             b.get_mass() / 
             pow(this.pos.dist(b.get_pos()), 2)
-        ) * G;
+        ) * G * G_MULTIPLIER;
 
         // Berechne die Kraft, die auf den Körper wirkt
         double F = this.mass * g;

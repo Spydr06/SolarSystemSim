@@ -1,22 +1,65 @@
-/***********************************************
+/************************************************************************************\
+ ____        _            ____            _                 ____  _
+/ ___|  ___ | | __ _ _ __/ ___| _   _ ___| |_ ___ _ __ ___ / ___|(_)_ __ ___
+\___ \ / _ \| |/ _` | '__\___ \| | | / __| __/ _ \ '_ ` _ \\___ \| | '_ ` _ \
+ ___) | (_) | | (_| | |   ___) | |_| \__ \ ||  __/ | | | | |___) | | | | | | |
+|____/ \___/|_|\__,_|_|  |____/ \__, |___/\__\___|_| |_| |_|____/|_|_| |_| |_|
+                                |___/
+                                
  SolarSystemSim - ein 3D Simultor für Gravitationskräfte zwischen Körpern
+ GitHub Repository:
+  - https://github.com/spydr06/solarsystemsim.git
  
- Funktionen: 
-  - Simulation von Gravitationskräften zwischen beliebig vielen Objekten
+ Erklärung hier oder formatiert in README.md
+ 
+ Systemanforderungen:
+  - Processing 4
+ 
+ Was der Code kann: 
+  - Simulation von Gravitationskräften zwischen (praktisch) beliebig vielen Objekten 
+    (theoretisch limitiert durch das 32-Bit Integer limit von 2147483647,
+     praktisch durch performance- und Speicherlimits)
   - 3D-Editorkamera und -steuerung:
       Maus zum Rotieren von X und Z Achse
       CTRL + Maus zum Verschieben des Koordinatensystems
       CTRL + R zum Zurücksetzen der Kamera
       CTRL + D zum Anzeigen/Verstecken von Debuginformationen
+      -- manchmal müssen Tastaturbefehle länger/mehrmals gedrückt werden,
+         um erkannt zu werden, Gründe dafür: niedrige FrameRate
   - Geschwindigkeitsregler
   - Pfade der Körper
   - Leuchteffekt für Objekte (z.B. Sterne)
-  
+ 
+ Was der Code (leider) nicht kann:
+  - FPS-Unabhängigkeit, bei niedrigen FPS (unter 60) kam es bereits zu Problemen
+    mit der Simulation.
+  - einfach sein... hab mir aber Mühe gegeben :)
+ 
  Namensgebung
   - globale bzw. konstante Variablen in `ALL_CAPS`
   - Datentypen/Klassen in `PascalCase`
   - Funktionen und lokale Variablen in `snake_case`
-\***********************************************/
+  
+ Wie der Code funktioniert:
+  > setup:
+    - Physikalische Körper sowie deren Verhalten sind in der `Body`-Klasse definiert
+      und werden in `BODIES` gespeichert.
+    - Die Körper werden in der `setup()`-Funktion definiert 
+      -> alle Eigenschaften sind konstant.
+  > draw
+    - Zunächst wird das Koordinatensystem so verschoben, dass 0,0 in der Mitte
+      des Fensters liegt (+ eine Verschiebung `TRANSLATION` steuerbar durch CTRL+Maus)
+    - Dann wird mit `ROTATION_MATRIX = get_rotation_matrix(ROTATION);` eine neue
+      Rotationsmatrix erstellt. Sie wird benötigt, um 3D-Raumkoordinaten auf den 2D-
+      Bildschirm zu projezieren. Mit `project()` kann man dann diese Matrix auf ein 
+      Set aus 3D-Koordinaten anwenden.
+    - Mit einer doppelten `ArrayList::forEach()`-Schleife übt jeder Körper auf Jeden 
+      eine Kraft aus. Die Berechnung der Kraft erfolgt in `Body::apply_force()`.
+    - Anschließend werden ein Gitter sowie alle Körper und das Overlay (Schieberegler,
+      etc.) gezeichnet.
+    - die Funktion beginnt von vorne.
+ 
+\**********************************************************************************/
 
 //
 // Library Imports
@@ -30,9 +73,9 @@ import java.util.Arrays;    // für Arrays.copyOf()
 // 
 
 // Konstanten
-public static final double G = 6.673e-11d;       // Gravitations-Konstante G
 public static final float DEFAULT_SCALE = 0.75f, // Standardskalierung
                           MIN_SCALE = 5f;        // kleinste Skalierung
+public static final double G = 6.673e-11d; // Gravitationskonstante G
 public static final String INFO_FMT = """=== DEBUG ===
 fps: %d
 speed: %d
@@ -44,8 +87,9 @@ CTRL+R zum Zurücksetzen der Kamera
 """; // Formatierung der Debug-Informationen
 
 // Simulation
-public static int SPEED = 1000; // Simulationsgeschwindigkeit
+public static int SPEED = 1000;      // Simulationsgeschwindigkeit
 public static ArrayList<Body> BODIES = new ArrayList(); // Liste für alle Körper, die in der Simulation verwendet werden
+public static float G_MULTIPLIER = 1; // Veränderung der Gravitationskonstante über den Schieberegler
 
 // Rendering
 public static PVector ROTATION = new PVector(),    // Gibt die Rotation an
@@ -53,13 +97,11 @@ public static PVector ROTATION = new PVector(),    // Gibt die Rotation an
 public static Matrix ROTATION_MATRIX;              // Rotationsmatrix
 public static float SCALE = DEFAULT_SCALE;         // Gibt die Skalierung an
 
-// Informationen
-
 // Eingabe
 public static boolean CTRL = false, // Gibt an, ob "Steuerung" gedrückt ist
                       SHOW_DEBUG_INFO = false; // soll debug-information gezeigt werden?
-public static Slider SPEED_SLIDER; // Schieberegler für die Geschwindigkeit
-
+public static Slider SPEED_SLIDER, // Schieberegler für die Geschwindigkeit
+                     GRAVITY_SLIDER; // Schieberegler für die Gravitationskonstante
 //
 // Basisfunktionen
 //
@@ -165,10 +207,11 @@ public void setup()
         .set_color(#e0908d)
         .set_name("Pluto")
         .set_position(0, 0, 6500)
-        .set_velocity(-0.000066, 0)
+        .set_velocity(-0.00008, 0)
     );
     
-    SPEED_SLIDER = new Slider(200, 5, 0, 10000, SPEED, "Geschwindigkeit");
+    SPEED_SLIDER = new Slider(0, 10000, SPEED, "Geschwindigkeit");
+    GRAVITY_SLIDER = new Slider(0, 10, G_MULTIPLIER, "Gravitation");
 }
 
 // draw-Funktion
@@ -208,15 +251,19 @@ public void draw()
     // Overlay
     // ------------------------------------------------------------------
 
-    SPEED_SLIDER.set_pos(width / 2 - 100, 10);
+    SPEED_SLIDER.set_pos(width / 2 - 250, 10);
+    GRAVITY_SLIDER.set_pos(width / 2 + 50, 10);
     SPEED_SLIDER.render(); // zeichne den Schieberegler 
-    SPEED = SPEED_SLIDER.get_value(); // aktualisiere die "SPEED"-Variable mit dem neuen Wert
+    SPEED = (int) SPEED_SLIDER.get_value(); // aktualisiere die `SPEED`-Variable mit dem neuen Wert
+    
+    GRAVITY_SLIDER.render();
+    G_MULTIPLIER = GRAVITY_SLIDER.get_value();   // aktualisiere `G` auf den Reglerwert, nur, wenn `USE_GRAVITY_SLIDER` gesetzt ist
 
     if(SHOW_DEBUG_INFO) 
     {
         fill(220); // Setze die Farbe für die FPS-Anzeige
         text(
-            String.format(
+            String.format( // formatiere den Text nach `INFO_FMT`
                 INFO_FMT, (int) frameRate, (int) (frameRate * SPEED), SCALE,
                 (int) TRANSLATION.x, (int) TRANSLATION.y, (int) TRANSLATION.z,
                 (int) degrees(ROTATION.x), (int) degrees(ROTATION.y), (int) degrees(ROTATION.z)
@@ -227,7 +274,7 @@ public void draw()
     // Setze den Cursor
     cursor(mousePressed
       ? MOVE
-      : SPEED_SLIDER.cursor_above() 
+      : SPEED_SLIDER.cursor_above() || GRAVITY_SLIDER.cursor_above()
         ? HAND 
         : ARROW
     );
@@ -337,7 +384,7 @@ public void mouseWheel(MouseEvent e)
 public void mouseDragged()
 {
     // Wenn der Schieberegler ein Event bekommt, beende die Funktion
-    if(SPEED_SLIDER.mouse_event())
+    if(SPEED_SLIDER.mouse_event() || GRAVITY_SLIDER.mouse_event())
         return;
     
      // Berechne die Bewegung der Maus während des letzten Frames
